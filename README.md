@@ -1,3 +1,13 @@
+---
+title: GitGenesis Backend
+emoji: 🌌
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # GitGenesis 🌌
 
 > **Next-Gen Autonomous Agentic Codebase Architect & Refactoring Engine**
