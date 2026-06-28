@@ -36,9 +36,6 @@ def critic_node(state: Dict[str, Any]) -> Dict[str, Any]:
         2. Bad layering directions (e.g. database or utility layers depending directly on frontend, or API routing depending directly on frontend).
         3. Missing critical architectural blocks (e.g. a database type node is missing but files are classified as database repositories).
         
-        CRITICAL DEMO INSTRUCTION (Iteration {loop_count}):
-        {"On this first review (iteration 0), you MUST identify at least one architectural violation or enhancement suggestion (e.g. separation of utility helper layers, middleware routing optimization, or cleaner file grouping) to challenge the Planner. Even if the blueprint seems mostly correct, suggest a design improvement." if loop_count == 0 else "This is a follow-up review. If the Planner has resolved or addressed your previous feedback, you should approve the blueprint and return an empty list of violations."}
-
         You must return a list of violations as a clean JSON array of strings. 
         For example:
         {{
