@@ -12,6 +12,9 @@ app_port: 7860
 
 > **Next-Gen Autonomous Agentic Codebase Architect & Refactoring Engine**
 
+🔗 **Live Demo**: [git-genesis.vercel.app](https://git-genesis.vercel.app/)  
+🔗 **Backend API Space**: [GitGenesis-Backend on Hugging Face](https://huggingface.co/spaces/nevansonic/GitGenesis-Backend)
+
 GitGenesis is a collaborative multi-agent AI platform that reverse-engineers codebases into interactive visual architecture blueprints. Developers can restructure architecture strategies, debate code edits through AI specialists, run isolated syntax and test suite validation inside secure **E2B Cloud Sandbox VMs**, and sync changes directly to GitHub via secure multi-tenant **GitHub OAuth Pull Requests**.
 
 ---
