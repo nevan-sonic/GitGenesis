@@ -572,12 +572,9 @@ async def regenerate_blueprint_nodes(
                 yield f"data: {json.dumps({'type': 'log', 'message': f'Self-Healing: Iteration {iteration+1}/3 started using Groq Llama-3.3-70b...'})}\n\n"
                 await asyncio.sleep(0.05)
                 if compilation_error:
-                    state["strategy_override"] = f"""{req.updated_strategy}
-                    
-                    CRITICAL WARNING: The previous attempt failed to compile/build with this error:
-                    {compilation_error}
-                    
-                    Please fix the syntax, correct references, and resolve compilation errors in your modifications."""
+                    state["compilation_error"] = compilation_error
+                else:
+                    state["compilation_error"] = None
 
                 result = code_modifier_node(state)
                 modifications = result.get("modifications", [])

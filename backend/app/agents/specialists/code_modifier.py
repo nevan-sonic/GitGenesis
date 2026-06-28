@@ -52,10 +52,21 @@ def code_modifier_node(state: Dict[str, Any]) -> Dict[str, Any]:
     for path, content in source_files.items():
         files_context += f"--- FILE: {path} ---\n{content}\n\n"
 
+    error_context = ""
+    compilation_error = state.get("compilation_error")
+    if compilation_error:
+        error_context = f"""
+        ⚠️ CRITICAL WARNING: The previous coding attempt failed to compile/build with this error:
+        {compilation_error}
+        
+        You MUST fix the syntax, correct references, and resolve this compilation error in your new modifications.
+        """
+
     prompt = f"""
     You are the Code Modifier Agent.
     Your task is to modify the provided codebase files to implement the following architectural strategy:
     Strategy: "{strategy}"
+    {error_context}
     
     Here are the files you need to modify along with their current content:
     {files_context}
