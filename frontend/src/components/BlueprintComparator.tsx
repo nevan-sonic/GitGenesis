@@ -27,7 +27,7 @@ export default function BlueprintComparator({ blueprintId, branches, activeBranc
     if (!branch1 || !branch2) return;
     setLoading(true);
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/compare?branch1=${branch1}&branch2=${branch2}`);
+      const res = await apiFetch(`/api/blueprints/compare?branch1=${branch1}&branch2=${branch2}`);
       if (res.ok) {
         const data = await res.json();
         setComparison(data);

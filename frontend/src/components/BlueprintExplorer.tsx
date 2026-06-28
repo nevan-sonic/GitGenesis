@@ -188,7 +188,7 @@ export default function BlueprintExplorer({
   // Handle visual drawing of connection edges
   const handleConnect = async (params: any) => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/edges`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/edges`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -217,7 +217,7 @@ export default function BlueprintExplorer({
     const cleanId = newNodeId.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
     
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/nodes`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/nodes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

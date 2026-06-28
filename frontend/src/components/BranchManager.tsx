@@ -21,7 +21,7 @@ export default function BranchManager({ branches, activeBranchId, onSwitch, onCl
     if (!newBranchName.trim() || creating) return;
     setCreating(true);
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/branches`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/branches`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newBranchName })
@@ -39,7 +39,7 @@ export default function BranchManager({ branches, activeBranchId, onSwitch, onCl
 
   const handleActivateBranch = async (branchId: string) => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/activate-branch/${branchId}`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/activate-branch/${branchId}`, {
         method: "POST"
       });
       if (res.ok) {

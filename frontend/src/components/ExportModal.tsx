@@ -29,7 +29,7 @@ export default function ExportModal({ blueprintId, branchId, onClose }: ExportMo
     setLoading(true);
     setCopied(false);
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/export?branch_id=${branchId}&format=${selectedFormat}`);
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/export?branch_id=${branchId}&format=${selectedFormat}`);
       if (res.ok) {
         const data = await res.json();
         setExportData(data);

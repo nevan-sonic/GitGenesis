@@ -51,7 +51,7 @@ export default function Workspace() {
   // Fetch blueprint graph data
   const fetchGraphData = async (branchId: string) => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/data?branch_id=${branchId}`);
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/data?branch_id=${branchId}`);
       if (res.ok) {
         const data = await res.json();
         setNodes(data.nodes);
@@ -68,7 +68,7 @@ export default function Workspace() {
   // Fetch branches list
   const fetchBranches = async () => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/branches`);
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/branches`);
       if (res.ok) {
         const data = await res.json();
         setBranches(data);
@@ -109,7 +109,7 @@ export default function Workspace() {
     onLog: (msg: string) => void
   ) => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/regenerate`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/regenerate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -170,7 +170,7 @@ export default function Workspace() {
 
   const handleStatusChange = async (nodeId: string, newStatus: string) => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/branches/${activeBranchId}/nodes/${nodeId}/status`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/branches/${activeBranchId}/nodes/${nodeId}/status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus })
@@ -186,7 +186,7 @@ export default function Workspace() {
 
   const handleDeleteNode = async (nodeId: string) => {
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/nodes/${nodeId}?branch_id=${activeBranchId}`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/nodes/${nodeId}?branch_id=${activeBranchId}`, {
         method: "DELETE"
       });
       if (res.ok) {
@@ -211,7 +211,7 @@ export default function Workspace() {
     setCommitResult(null);
     setShowCommitModal(true);
     try {
-      const res = await apiFetch(`http://localhost:8000/api/blueprints/${blueprintId}/commit`, {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/commit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -508,7 +508,7 @@ function FileViewerModal({ blueprintId, activeBranchId, path, onClose }: FileVie
       try {
         // 1. Fetch original content
         const originalRes = await apiFetch(
-          `http://localhost:8000/api/blueprints/${blueprintId}/file-content?path=${encodeURIComponent(path)}`
+          `/api/blueprints/${blueprintId}/file-content?path=${encodeURIComponent(path)}`
         );
         let origText = "";
         if (originalRes.ok) {
@@ -522,7 +522,7 @@ function FileViewerModal({ blueprintId, activeBranchId, path, onClose }: FileVie
 
         // 2. Fetch modified files to see if modified in this branch
         const modifiedRes = await apiFetch(
-          `http://localhost:8000/api/blueprints/${blueprintId}/modified-files?branch_id=${activeBranchId}`
+          `/api/blueprints/${blueprintId}/modified-files?branch_id=${activeBranchId}`
         );
         if (modifiedRes.ok) {
           const modFiles = await modifiedRes.json();

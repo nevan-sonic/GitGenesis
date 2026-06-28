@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { GitFork, ArrowRight, Play, AlertCircle, User, LogOut } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { WS_BASE_URL } from "./api";
 
 export default function Home() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function Home() {
     setLogs([]);
     setStatusMsg("Establishing live connection to GitGenesis Agent Cluster...");
 
-    const wsUrl = `ws://localhost:8000/api/ws/analyze`;
+    const wsUrl = `${WS_BASE_URL}/api/ws/analyze`;
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
