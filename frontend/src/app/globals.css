@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f0e6;
+  --foreground: #000000;
+  --primary: #a855f7; /* vibrant purple */
+  --secondary: #e11d48; /* bold red */
+  --accent: #facc15; /* warm yellow */
+  --border: #000000;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f0e6;
+  border-left: 3px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 0px;
+}
+
+/* Neo-Brutalism Classes */
+.neo-border {
+  border: 3px solid #000000;
+}
+
+.neo-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-shadow-lg {
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+.neo-btn {
+  background: var(--primary);
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.15s ease;
+  font-weight: 700;
+  color: #000000;
+}
+
+.neo-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-btn:active {
+  transform: translate(0px, 0px);
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-btn-secondary {
+  background: var(--secondary);
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.15s ease;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.neo-btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-btn-accent {
+  background: var(--accent);
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.15s ease;
+  font-weight: 700;
+  color: #000000;
+}
+
+.neo-btn-accent:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-card {
+  background: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+/* React Flow customizations for Neo-brutalism */
+.react-flow__minimap {
+  border: 3px solid #000000 !important;
+  box-shadow: 4px 4px 0px 0px #000000 !important;
+  background: #ffffff !important;
+}
+
+.react-flow__controls {
+  border: 3px solid #000000 !important;
+  box-shadow: 4px 4px 0px 0px #000000 !important;
+  background: #ffffff !important;
+  border-radius: 0px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  border-bottom: 2px solid #000000 !important;
+  border-right: none !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #f4f0e6 !important;
+}
