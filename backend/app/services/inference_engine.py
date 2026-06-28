@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from app.repositories.graph_repository import GraphRepository
 from app.services.embedding_service import EmbeddingService
 
