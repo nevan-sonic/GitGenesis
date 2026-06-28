@@ -3,6 +3,36 @@ import json
 from typing import Dict, Any, List
 from app.config import config
 
+def repair_json_backslashes(text: str) -> str:
+    """Repairs invalid JSON backslash escapes by doubling them (e.g. \s -> \\s) while preserving valid JSON escapes."""
+    result = []
+    i = 0
+    n = len(text)
+    while i < n:
+        char = text[i]
+        if char == '\\':
+            if i + 1 < n:
+                next_char = text[i + 1]
+                # Is it a standard JSON escape?
+                if next_char in ['"', '\\', '/', 'b', 'f', 'n', 'r', 't']:
+                    result.append('\\')
+                    result.append(next_char)
+                    i += 2
+                    continue
+                # Is it a unicode escape?
+                elif next_char == 'u' and i + 5 < n and all(c in '0123456789abcdefABCDEF' for c in text[i+2:i+6]):
+                    result.append('\\')
+                    result.append('u')
+                    result.append(text[i+2:i+6])
+                    i += 6
+                    continue
+            result.append('\\\\')
+            i += 1
+        else:
+            result.append(char)
+            i += 1
+    return "".join(result)
+
 def code_modifier_node(state: Dict[str, Any]) -> Dict[str, Any]:
     """Code Modifier Agent: Modifies repository files based on strategy updates."""
     kg = state.get("knowledge_graph") or {}
@@ -51,7 +81,7 @@ def code_modifier_node(state: Dict[str, Any]) -> Dict[str, Any]:
     modifications = []
     if config.GROQ_API_KEY:
         try:
-            url = "https://api.groq.com/openai/v1/chat/completions"
+            url = "https://api.groq.com/openapi/v1/chat/completions"
             headers = {
                 "Authorization": f"Bearer {config.GROQ_API_KEY}",
                 "content-type": "application/json"
@@ -71,7 +101,13 @@ def code_modifier_node(state: Dict[str, Any]) -> Dict[str, Any]:
                     elif "```" in text:
                         text = text.split("```")[1].split("```")[0].strip()
                     
-                    data = json.loads(text)
+                    try:
+                        data = json.loads(text)
+                    except json.JSONDecodeError:
+                        # Attempt to auto-repair invalid backslashes before failing
+                        repaired_text = repair_json_backslashes(text)
+                        data = json.loads(repaired_text)
+                        
                     modifications = data.get("modifications", [])
                     logs.append(f"Code Modifier: Successfully generated changes for {len(modifications)} files.")
                 else:
