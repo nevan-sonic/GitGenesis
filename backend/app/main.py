@@ -647,10 +647,11 @@ async def regenerate_blueprint_nodes(
                             if res.exit_code != 0:
                                 compilation_error = f"Python syntax check failed for {file_path}:\n{res.stderr or res.stdout}"
                                 break
-                        elif file_path.endswith(".js") or file_path.endswith(".ts"):
-                            res = e2b_sandbox.commands.run(f"node --check {sandbox_file_path}")
+                        elif file_path.endswith(".js") or file_path.endswith(".jsx") or file_path.endswith(".ts") or file_path.endswith(".tsx"):
+                            # Use esbuild --dry-run to validate ES Modules, JSX, and TypeScript syntax cleanly
+                            res = e2b_sandbox.commands.run(f"npx --yes esbuild {sandbox_file_path} --dry-run")
                             if res.exit_code != 0:
-                                compilation_error = f"JavaScript syntax check failed for {file_path}:\n{res.stderr or res.stdout}"
+                                compilation_error = f"JavaScript/TypeScript syntax check failed for {file_path}:\n{res.stderr or res.stdout}"
                                 break
                                 
                     # 3. Unit Test Check
