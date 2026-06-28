@@ -12,16 +12,16 @@ def coordinator_node(state: Dict[str, Any]) -> Dict[str, Any]:
     # Initialize log tracking
     updated_logs = list(logs)
 
-    # 1. Schedule specialists sequentially (simulating parallel gathering in LangGraph)
+    # 1. Schedule specialists concurrently (Parallel fanning out in LangGraph)
     specialist_keys = ["repository_analyst", "architecture_agent", "dependency_agent", "complexity_agent", "documentation_agent"]
     
-    for key in specialist_keys:
-        if key not in specialist_outputs:
-            updated_logs.append(f"Coordinator: Scheduling Specialist Agent [{key}]...")
-            return {
-                "active_agent": key,
-                "logs": updated_logs
-            }
+    missing_specialists = [k for k in specialist_keys if k not in specialist_outputs]
+    if missing_specialists:
+        updated_logs.append("Coordinator: Dispatching parallel specialist agent cluster (Repository Analyst, Architecture, Dependency, Complexity, Documentation)...")
+        return {
+            "active_agent": "run_specialists",
+            "logs": updated_logs
+        }
 
     # 2. If specialists completed but no blueprint draft exists, schedule Planner
     if not blueprint_draft:

@@ -7,6 +7,93 @@ import { GitFork, ArrowRight, Play, AlertCircle, User, LogOut } from "lucide-rea
 import { useAuth } from "@/components/AuthProvider";
 import { WS_BASE_URL } from "./api";
 
+const parseLog = (log: string) => {
+  const parts = log.split(":");
+  if (parts.length > 1) {
+    const rawRole = parts[0].trim();
+    const content = parts.slice(1).join(":").trim();
+    const roleLower = rawRole.toLowerCase();
+    
+    let role = rawRole;
+    let avatar = "🤖";
+    let bgColor = "bg-[#f3f4f6] text-black";
+    let borderStyle = "border-zinc-400";
+    let isCoordinator = false;
+    let isCritic = false;
+    let isPlanner = false;
+    
+    if (roleLower.includes("coordinator")) {
+      role = "Coordinator Agent";
+      avatar = "👑";
+      bgColor = "bg-[#eff6ff] text-blue-900";
+      borderStyle = "border-blue-500";
+      isCoordinator = true;
+    } else if (roleLower.includes("critic")) {
+      role = "Critic Agent";
+      avatar = "🕵️‍♂️";
+      bgColor = "bg-[#fff1f2] text-rose-900";
+      borderStyle = "border-rose-500";
+      isCritic = true;
+    } else if (roleLower.includes("planner")) {
+      role = "Blueprint Planner";
+      avatar = "🎯";
+      bgColor = "bg-[#fef3c7] text-amber-900";
+      borderStyle = "border-amber-500";
+      isPlanner = true;
+    } else if (roleLower.includes("analyst")) {
+      role = "Repository Analyst";
+      avatar = "🔍";
+      bgColor = "bg-[#f5f3ff] text-purple-900";
+      borderStyle = "border-purple-400";
+    } else if (roleLower.includes("architect")) {
+      role = "Architecture Specialist";
+      avatar = "📐";
+      bgColor = "bg-[#ecfdf5] text-emerald-900";
+      borderStyle = "border-emerald-400";
+    } else if (roleLower.includes("dependency")) {
+      role = "Dependency Specialist";
+      avatar = "🔗";
+      bgColor = "bg-[#fdf2f8] text-[#9d174d]";
+      borderStyle = "border-pink-400";
+    } else if (roleLower.includes("complexity")) {
+      role = "Complexity Specialist";
+      avatar = "⚡";
+      bgColor = "bg-[#fff7ed] text-orange-950";
+      borderStyle = "border-orange-400";
+    } else if (roleLower.includes("documentation")) {
+      role = "Documentation Specialist";
+      avatar = "📝";
+      bgColor = "bg-[#fafaf9] text-stone-900";
+      borderStyle = "border-stone-400";
+    } else if (roleLower.includes("validator")) {
+      role = "Consistency Validator";
+      avatar = "✅";
+      bgColor = "bg-[#f0fdf4] text-green-900";
+      borderStyle = "border-green-500";
+    }
+    
+    let align = "justify-start";
+    if (isCoordinator) {
+      align = "justify-start";
+    } else if (isCritic || isPlanner) {
+      align = "justify-center";
+    } else {
+      align = "justify-end";
+    }
+    
+    return { role, content, avatar, bgColor, borderStyle, align };
+  }
+  
+  return {
+    role: "System Notice",
+    content: log,
+    avatar: "⚙️",
+    bgColor: log.toLowerCase().includes("error") ? "bg-[#fef2f2] text-red-900" : "bg-white text-zinc-600",
+    borderStyle: log.toLowerCase().includes("error") ? "border-red-500" : "border-black",
+    align: "justify-center"
+  };
+};
+
 export default function Home() {
   const router = useRouter();
   const { user, supabaseToken, githubToken, logout } = useAuth();
@@ -204,16 +291,37 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Logs */}
-              <div className="flex-1 bg-white p-5 font-mono text-xs overflow-y-auto flex flex-col gap-2.5 text-black border-b-4 border-black">
-                {logs.map((log, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <span className="text-zinc-400 select-none">[{idx + 1}]</span>
-                    <span className={log.startsWith("[System]") ? "text-indigo-600 font-extrabold" : log.includes("Error") ? "text-red-600 font-extrabold" : "text-black"}>
-                      {log}
-                    </span>
-                  </div>
-                ))}
+              {/* Logs rendered as a live agent debate conversation */}
+              <div className="flex-1 bg-[#f4f0e6]/40 p-5 overflow-y-auto flex flex-col gap-4 border-b-4 border-black min-h-[300px]">
+                {logs.map((log, idx) => {
+                  const bubble = parseLog(log);
+                  const isSystem = bubble.role === "System Notice";
+                  
+                  if (isSystem) {
+                    return (
+                      <div key={idx} className="flex justify-center my-1 w-full">
+                        <div className={`px-4 py-2 border-2 text-[11px] font-mono font-bold shadow-[2px_2px_0px_0px_#000000] ${bubble.bgColor} ${bubble.borderStyle}`}>
+                          <span className="mr-1.5">{bubble.avatar}</span>
+                          {bubble.content}
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div key={idx} className={`flex w-full ${bubble.align}`}>
+                      <div className={`max-w-[80%] flex flex-col gap-1 p-3 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] ${bubble.align.includes("end") ? "rounded-tl-xl rounded-tr-none" : "rounded-tr-xl rounded-tl-none"}`}>
+                        <div className="flex items-center gap-1.5 border-b border-black/10 pb-1 text-[10px] font-mono font-black uppercase text-zinc-650">
+                          <span>{bubble.avatar}</span>
+                          <span>{bubble.role}</span>
+                        </div>
+                        <div className={`px-2.5 py-1.5 text-xs font-bold leading-relaxed border-2 border-black ${bubble.bgColor}`}>
+                          {bubble.content}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
                 <div ref={consoleEndRef} />
               </div>
 

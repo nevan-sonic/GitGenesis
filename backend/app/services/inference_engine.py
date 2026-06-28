@@ -57,7 +57,8 @@ class InferenceEngine:
                 dependency_references=node["dependency_references"],
                 related_modules=node["related_modules"],
                 generated_task=node["generated_task"],
-                embedding=embedding
+                embedding=embedding,
+                confidence_explanation=node.get("confidence_explanation", "")
             )
 
         # 5. Persist edges
@@ -99,6 +100,7 @@ class InferenceEngine:
                     "name": node.get("name", nid),
                     "type": node.get("type", "layer"),
                     "confidence_score": conf,
+                    "confidence_explanation": node.get("confidence_explanation", ""),
                     "supporting_evidence": list(set(node.get("supporting_evidence", []))),
                     "architectural_reasoning_summary": node.get("architectural_reasoning_summary", ""),
                     "source_files": list(set(node.get("source_files", []))),
@@ -115,9 +117,14 @@ class InferenceEngine:
                 existing["dependency_references"] = list(set(existing["dependency_references"] + node.get("dependency_references", [])))
                 existing["related_modules"] = list(set(existing["related_modules"] + node.get("related_modules", [])))
                 
-                # Append summaries if they differ
+                # Append summaries/explanations if they differ
                 if node.get("architectural_reasoning_summary") and node["architectural_reasoning_summary"] not in existing["architectural_reasoning_summary"]:
                     existing["architectural_reasoning_summary"] += "\n" + node["architectural_reasoning_summary"]
+                if node.get("confidence_explanation") and node["confidence_explanation"] not in existing.get("confidence_explanation", ""):
+                    if existing.get("confidence_explanation"):
+                        existing["confidence_explanation"] += " " + node["confidence_explanation"]
+                    else:
+                        existing["confidence_explanation"] = node["confidence_explanation"]
                     
         return merged
 

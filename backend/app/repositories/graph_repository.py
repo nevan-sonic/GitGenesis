@@ -24,7 +24,8 @@ class GraphRepository(ABC):
     def add_node(self, node_id: str, blueprint_id: str, branch_id: str, name: str, node_type: str, 
                  confidence_score: int, supporting_evidence: List[str], architectural_reasoning_summary: str,
                  source_files: List[str], dependency_references: List[str], related_modules: List[str], 
-                 generated_task: str, embedding: Optional[List[float]] = None) -> None:
+                 generated_task: str, embedding: Optional[List[float]] = None, status: str = 'todo',
+                 confidence_explanation: Optional[str] = None) -> None:
         pass
 
     @abstractmethod
@@ -152,22 +153,24 @@ class PostgresGraphRepository(GraphRepository):
     def add_node(self, node_id: str, blueprint_id: str, branch_id: str, name: str, node_type: str, 
                  confidence_score: int, supporting_evidence: List[str], architectural_reasoning_summary: str,
                  source_files: List[str], dependency_references: List[str], related_modules: List[str], 
-                 generated_task: str, embedding: Optional[List[float]] = None, status: str = 'todo') -> None:
+                 generated_task: str, embedding: Optional[List[float]] = None, status: str = 'todo',
+                 confidence_explanation: Optional[str] = None) -> None:
         conn = get_db_connection()
         try:
             with conn.cursor() as cur:
                 cur.execute("""
                     INSERT INTO executable_blueprint_nodes (
-                        id, blueprint_id, branch_id, name, type, confidence_score, 
+                        id, blueprint_id, branch_id, name, type, confidence_score, confidence_explanation,
                         supporting_evidence, architectural_reasoning_summary, 
                         source_files, dependency_references, related_modules, 
                         generated_task, embedding, status
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     ) ON CONFLICT (id, branch_id) DO UPDATE SET
                         name = EXCLUDED.name,
                         type = EXCLUDED.type,
                         confidence_score = EXCLUDED.confidence_score,
+                        confidence_explanation = EXCLUDED.confidence_explanation,
                         supporting_evidence = EXCLUDED.supporting_evidence,
                         architectural_reasoning_summary = EXCLUDED.architectural_reasoning_summary,
                         source_files = EXCLUDED.source_files,
@@ -178,7 +181,7 @@ class PostgresGraphRepository(GraphRepository):
                         status = COALESCE(EXCLUDED.status, executable_blueprint_nodes.status);
                 """, (
                     node_id, blueprint_id, branch_id, name, node_type, confidence_score,
-                    json.dumps(supporting_evidence), architectural_reasoning_summary,
+                    confidence_explanation, json.dumps(supporting_evidence), architectural_reasoning_summary,
                     json.dumps(source_files), json.dumps(dependency_references), json.dumps(related_modules),
                     generated_task, embedding, status
                 ))
@@ -214,7 +217,7 @@ class PostgresGraphRepository(GraphRepository):
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT id, blueprint_id, branch_id, name, type, confidence_score, 
+                    SELECT id, blueprint_id, branch_id, name, type, confidence_score, confidence_explanation,
                            supporting_evidence, architectural_reasoning_summary, 
                            source_files, dependency_references, related_modules, 
                            generated_task, status FROM executable_blueprint_nodes
@@ -242,7 +245,7 @@ class PostgresGraphRepository(GraphRepository):
         try:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT id, blueprint_id, branch_id, name, type, confidence_score, 
+                    SELECT id, blueprint_id, branch_id, name, type, confidence_score, confidence_explanation,
                            supporting_evidence, architectural_reasoning_summary, 
                            source_files, dependency_references, related_modules, 
                            generated_task, status FROM executable_blueprint_nodes
@@ -354,7 +357,7 @@ class PostgresGraphRepository(GraphRepository):
             with conn.cursor() as cur:
                 # pgvector cosine distance is <=> operator
                 cur.execute("""
-                    SELECT id, blueprint_id, branch_id, name, type, confidence_score, 
+                    SELECT id, blueprint_id, branch_id, name, type, confidence_score, confidence_explanation,
                            supporting_evidence, architectural_reasoning_summary, 
                            source_files, dependency_references, related_modules, 
                            generated_task, (embedding <=> %s) AS distance
@@ -393,13 +396,13 @@ class PostgresGraphRepository(GraphRepository):
                 # Clone nodes
                 cur.execute("""
                     INSERT INTO executable_blueprint_nodes (
-                        id, blueprint_id, branch_id, name, type, confidence_score, 
+                        id, blueprint_id, branch_id, name, type, confidence_score, confidence_explanation,
                         supporting_evidence, architectural_reasoning_summary, 
                         source_files, dependency_references, related_modules, 
                         generated_task, embedding, status
                     )
                     SELECT 
-                        id, blueprint_id, %s, name, type, confidence_score, 
+                        id, blueprint_id, %s, name, type, confidence_score, confidence_explanation,
                         supporting_evidence, architectural_reasoning_summary, 
                         source_files, dependency_references, related_modules, 
                         generated_task, embedding, status

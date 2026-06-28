@@ -138,6 +138,16 @@ export default function TaskInspector({ node, onClose, onRegenerate, onViewFile,
             </div>
           </div>
 
+          {/* Confidence Explanation */}
+          {node.confidence_explanation && (
+            <div className="flex flex-col gap-1 mt-1.5 p-2 bg-[#f4f0e6] border border-black/40 text-black">
+              <span className="text-[9px] text-zinc-700 font-mono font-bold uppercase">Confidence Reasoning:</span>
+              <p className="text-[10.5px] text-zinc-800 italic leading-relaxed">
+                "{node.confidence_explanation}"
+              </p>
+            </div>
+          )}
+
           {/* Reasoning Summary */}
           <div className="flex flex-col gap-1 mt-2">
             <span className="text-[10px] text-zinc-700 font-mono font-bold">Reasoning Summary:</span>

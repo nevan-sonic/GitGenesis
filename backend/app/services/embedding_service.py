@@ -55,7 +55,32 @@ class EmbeddingService:
         return results
 
     def _fetch_embeddings(self, texts: List[str]) -> List[List[float]]:
-        """Always generates mock embeddings when model is local."""
+        """Fetches real embeddings from Groq nomic-embed-text-v1.5 API, falling back to mock vectors on failure."""
+        if not self.api_key:
+            return [self._generate_mock_vector(t) for t in texts]
+            
+        try:
+            import httpx
+            url = "https://api.groq.com/openai/v1/embeddings"
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": "nomic-embed-text-v1.5",
+                "input": texts
+            }
+            with httpx.Client(timeout=15.0) as client:
+                res = client.post(url, headers=headers, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    return [d["embedding"] for d in data["data"]]
+                else:
+                    print(f"EmbeddingService: Groq API returned status code {res.status_code}: {res.text}")
+        except Exception as e:
+            print(f"EmbeddingService: Request to Groq failed: {e}")
+            
+        # Fallback to deterministic pseudo-random vectors
         return [self._generate_mock_vector(t) for t in texts]
 
     def _normalize_vector(self, v: List[float]) -> List[float]:

@@ -22,6 +22,9 @@ def documentation_node(state: Dict[str, Any]) -> Dict[str, Any]:
     
     Metadata: {metadata}
     
+    Context from other specialist agents:
+    {specialist_outputs}
+    
     Extract:
     1. Steps required to run and build the application.
     2. Any environment variables (dotenv configurations).

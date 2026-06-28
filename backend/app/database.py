@@ -75,6 +75,7 @@ def init_db():
                     name TEXT NOT NULL,
                     type TEXT,
                     confidence_score INTEGER,
+                    confidence_explanation TEXT,
                     supporting_evidence JSONB,
                     architectural_reasoning_summary TEXT,
                     source_files JSONB,
@@ -86,9 +87,10 @@ def init_db():
                 );
             """)
             
-            # Ensure status column is present
+            # Ensure status and explanation columns are present
             try:
                 cur.execute("ALTER TABLE executable_blueprint_nodes ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'todo';")
+                cur.execute("ALTER TABLE executable_blueprint_nodes ADD COLUMN IF NOT EXISTS confidence_explanation TEXT;")
             except Exception as e:
                 print(f"Warning: Could not alter executable_blueprint_nodes table. Error: {e}")
 

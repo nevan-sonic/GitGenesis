@@ -24,6 +24,9 @@ def complexity_node(state: Dict[str, Any]) -> Dict[str, Any]:
     Evaluate the following file size metrics and function counts:
     Top 10 largest files (LOC, Functions count): {loc_sorted[:10]}
     
+    Context from other specialist agents:
+    {specialist_outputs}
+    
     Identify:
     1. Codebase hotspots (modules containing excessive logic density).
     2. High-risk modules that require decoupling or careful ordering.

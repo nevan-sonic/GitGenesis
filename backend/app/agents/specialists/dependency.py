@@ -28,6 +28,9 @@ def dependency_node(state: Dict[str, Any]) -> Dict[str, Any]:
     Total dependency links: {len([e for e in edges if e.get("relation") == "IMPORTS"])}
     Heavily imported files (shared dependencies): {sorted_imports[:10]}
     
+    Context from other specialist agents:
+    {specialist_outputs}
+    
     Determine:
     1. The core foundation components that have no dependencies (e.g. database schema configs, helpers).
     2. The logical sequence/pipeline order to build these components (e.g. Database -> Models -> Controllers -> UI).

@@ -40,7 +40,11 @@ app = FastAPI(
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://git-genesis.vercel.app",
+        "https://git-genesis-five.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -312,14 +316,33 @@ async def websocket_analyze(websocket: WebSocket):
         last_log_len = 0
         config_run = {"recursion_limit": 50}
         
-        # Invoking workflow
+        # Invoking workflow step-by-step to stream logs in real-time
         await websocket.send_json({"type": "status", "message": "Starting multi-agent debate and refinement loops..."})
         
-        final_state = workflow.invoke(state, config=config_run)
+        final_state = dict(state)
+        last_logs = set()
         
-        # Send logs
-        for log in final_state.get("logs", []):
-            await websocket.send_json({"type": "log", "message": log})
+        async for event in workflow.astream(state, config=config_run):
+            for node_name, node_update in event.items():
+                # Merge state updates in real-time
+                for key, val in node_update.items():
+                    if key == "logs":
+                        from app.agents.graph import append_logs
+                        final_state["logs"] = append_logs(final_state.get("logs", []), val)
+                    elif key == "specialist_outputs":
+                        from app.agents.graph import merge_specialist_outputs
+                        final_state["specialist_outputs"] = merge_specialist_outputs(final_state.get("specialist_outputs", {}), val)
+                    else:
+                        final_state[key] = val
+                
+                # Stream any newly appended logs to frontend
+                if "logs" in node_update:
+                    for log in node_update["logs"]:
+                        if log not in last_logs:
+                            await websocket.send_json({"type": "log", "message": log})
+                            last_logs.add(log)
+                            import asyncio
+                            await asyncio.sleep(0.02)
 
         await websocket.send_json({"type": "status", "message": "Invoking Inference Engine for final conflict resolution..."})
         
@@ -412,6 +435,40 @@ async def get_blueprint_graph_data(id: str, branch_id: Optional[str] = Query(Non
         "nodes": nodes,
         "edges": edges,
         "branch_id": target_branch
+    }
+
+@app.get("/api/blueprints/{id}/search")
+async def search_blueprint_nodes(
+    id: str,
+    q: str = Query(...),
+    branch_id: Optional[str] = Query(None),
+    user_id: str = Depends(get_current_user_id)
+):
+    """Performs a semantic vector similarity search on the nodes of a blueprint branch."""
+    verify_blueprint_ownership(id, user_id)
+    
+    target_branch = branch_id
+    if not target_branch:
+        active = graph_repo.get_active_branch(id)
+        if not active:
+            raise HTTPException(status_code=404, detail="No active branch found.")
+        target_branch = active["id"]
+
+    query_embedding = embedding_svc.get_embedding(q)
+    results = graph_repo.vector_search_nodes(id, target_branch, query_embedding, limit=5)
+    
+    return {
+        "query": q,
+        "results": [
+            {
+                "id": node["id"],
+                "name": node["name"],
+                "type": node["type"],
+                "distance": node.get("distance", 1.0),
+                "architectural_reasoning_summary": node["architectural_reasoning_summary"]
+            }
+            for node in results
+        ]
     }
 
 @app.post("/api/blueprints/{id}/regenerate")

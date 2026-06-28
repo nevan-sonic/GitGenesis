@@ -21,7 +21,7 @@ def planner_node(state: Dict[str, Any]) -> Dict[str, Any]:
     
     Construct an Executable Engineering Blueprint.
     The response MUST be a valid JSON containing "nodes" and "edges" keys:
-    - Nodes list with fields: id, name, type (e.g. foundation, database, middleware, api, frontend), confidence_score (an integer between 0 and 100, representing percentage), supporting_evidence (list of files), architectural_reasoning_summary, source_files, dependency_references, related_modules, generated_task.
+    - Nodes list with fields: id, name, type (e.g. foundation, database, middleware, api, frontend), confidence_score (an integer between 0 and 100, representing percentage), confidence_explanation (a short string explaining why you gave it this percentage score based on source code files or architecture rules), supporting_evidence (list of files), architectural_reasoning_summary, source_files, dependency_references, related_modules, generated_task.
     - Edges list with fields: source, target, relation_type.
     
     CRITICAL RULES:
@@ -86,6 +86,7 @@ Ensure standard coding patterns, proper error boundaries, and integration with u
                 "name": f"{layer_name} Layer",
                 "type": "layer",
                 "confidence_score": 95,
+                "confidence_explanation": f"95% confidence because there are {len(files)} source modules matched under the {layer_name} directory structure.",
                 "supporting_evidence": files[:3],
                 "architectural_reasoning_summary": f"Grouped {len(files)} files belonging to the {layer_name} component category of the application.",
                 "source_files": files,

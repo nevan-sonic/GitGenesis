@@ -168,9 +168,39 @@ export default function BlueprintExplorer({
     setEdges(formattedEdges);
   }, [rawNodes, rawEdges, selectedNodeId]);
 
-  // Apply search filtering
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
+  // Apply search filtering (vector search fallback to local text match)
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setNodes(prev => prev.map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          isSelected: node.id === selectedNodeId
+        }
+      })));
+      return;
+    }
+    
+    try {
+      const res = await apiFetch(`/api/blueprints/${blueprintId}/search?q=${encodeURIComponent(searchQuery)}&branch_id=${activeBranchId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const matchedIds = new Set(data.results.map((r: any) => r.id));
+        
+        setNodes(prev => prev.map(node => ({
+          ...node,
+          data: {
+            ...node.data,
+            isSelected: matchedIds.has(node.id) || node.id === selectedNodeId
+          }
+        })));
+        return;
+      }
+    } catch (e) {
+      console.error("Vector search failed, falling back to local text search", e);
+    }
+    
+    // Local fallback search (substring matching)
     setNodes(prev => prev.map(node => {
       const label = String(node.data.label).toLowerCase();
       const summary = String(node.data.summary).toLowerCase();

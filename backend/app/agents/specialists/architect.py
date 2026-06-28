@@ -20,6 +20,9 @@ def architect_node(state: Dict[str, Any]) -> Dict[str, Any]:
     Layer modules sample: {{k: v[:5] for k, v in layers.items()}}
     Services identified: {list(services.keys())}
     
+    Context from other specialist agents:
+    {specialist_outputs}
+    
     Identify:
     1. Key architectural patterns (e.g. MVC, Clean Architecture, Repository Pattern, Layered Architecture).
     2. Boundary lines and modules that act as interfaces between directories.

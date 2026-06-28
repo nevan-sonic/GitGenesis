@@ -22,6 +22,9 @@ def analyst_node(state: Dict[str, Any]) -> Dict[str, Any]:
     Dependencies: {metadata.get("dependencies", {})}
     Files: {file_list[:100]}
     
+    Context from other specialist agents:
+    {specialist_outputs}
+    
     Identify:
     1. The main entrypoints of the application (e.g. index.ts, main.py, App.tsx).
     2. The core services and packages structure.
