@@ -92,7 +92,7 @@ def code_modifier_node(state: Dict[str, Any]) -> Dict[str, Any]:
     modifications = []
     if config.GROQ_API_KEY:
         try:
-            url = "https://api.groq.com/openapi/v1/chat/completions"
+            url = "https://api.groq.com/openai/v1/chat/completions"
             headers = {
                 "Authorization": f"Bearer {config.GROQ_API_KEY}",
                 "content-type": "application/json"
