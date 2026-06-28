@@ -11,13 +11,17 @@ def init_db():
     """Initializes the database schema including pgvector extension and table creation."""
     conn = get_db_connection()
     try:
+        # 1. Enable the pgvector extension in its own isolated transaction
         with conn.cursor() as cur:
-            # Enable the pgvector extension if it exists
             try:
                 cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+                conn.commit()
             except Exception as e:
+                conn.rollback()
                 print(f"Warning: Could not enable pgvector extension. Make sure it is supported. Error: {e}")
-            
+        
+        # 2. Initialize remaining tables and indexes
+        with conn.cursor() as cur:
             # Create repositories table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS repositories (
@@ -30,12 +34,15 @@ def init_db():
                 );
             """)
 
-            # Adjust unique constraint for multi-tenancy
+            # Adjust unique constraint for multi-tenancy safely
             try:
                 cur.execute("ALTER TABLE repositories DROP CONSTRAINT IF EXISTS repositories_url_key;")
                 cur.execute("ALTER TABLE repositories ADD COLUMN IF NOT EXISTS user_id UUID;")
-                # Use a unique constraint name to avoid duplicate indexes
-                cur.execute("ALTER TABLE repositories ADD CONSTRAINT repositories_url_user_id_key UNIQUE (url, user_id);")
+                
+                # Check if constraint exists before adding to prevent aborting transaction
+                cur.execute("SELECT 1 FROM pg_constraint WHERE conname = 'repositories_url_user_id_key';")
+                if not cur.fetchone():
+                    cur.execute("ALTER TABLE repositories ADD CONSTRAINT repositories_url_user_id_key UNIQUE (url, user_id);")
             except Exception as e:
                 print(f"Warning adjusting unique constraint on repositories: {e}")
 
@@ -66,7 +73,6 @@ def init_db():
             """)
 
             # Create executable_blueprint_nodes table
-            # We use vector(768) as standard for text-embedding-004. We fall back to standard text if vector isn't fully installed.
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS executable_blueprint_nodes (
                     id TEXT NOT NULL,
